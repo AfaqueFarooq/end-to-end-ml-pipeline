@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --border: #1e1e2e;
+            --accent: #7c6af7;
+            --accent-light: #a89cf5;
+            --accent-glow: rgba(124, 106, 247, 0.15);
+            --text: #e8e6f0;
+            --text-muted: #6b6880;
+            --card: #13131c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* Glow orb */
+        body::after {
+            content: '';
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(124,106,247,0.12) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 680px;
+            padding: 40px 24px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(124,106,247,0.3);
+            color: var(--accent-light);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 32px;
+            animation: fadeDown 0.5s ease both;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(40px, 7vw, 72px);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            animation: fadeDown 0.5s ease 0.1s both;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #fff 30%, var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.8;
+            max-width: 460px;
+            margin: 0 auto 48px;
+            animation: fadeDown 0.5s ease 0.2s both;
+        }
+
+        .cta {
+            animation: fadeDown 0.5s ease 0.3s both;
+        }
+
+        .cta a {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.03em;
+            padding: 16px 32px;
+            border-radius: 10px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .cta a::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+        }
+
+        .cta a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(124,106,247,0.4);
+        }
+
+        .cta a:active { transform: translateY(0); }
+
+        .arrow {
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+
+        .cta a:hover .arrow { transform: translateX(4px); }
+
+        /* Stats row */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            margin-top: 64px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            animation: fadeUp 0.5s ease 0.4s both;
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 48px;
+            animation: fadeUp 0.5s ease 0.35s both;
+        }
+
+        .feature {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .feature-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @media (max-width: 560px) {
+            .features { grid-template-columns: 1fr; }
+            .stats { gap: 28px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="badge">Powered by Machine Learning</div>
+
+    <h1><span>Predict Student<br>Exam Performance</span></h1>
+
+    <p class="description">
+        Enter a student's demographics and prior scores to instantly predict their mathematics performance using a trained regression model.
+    </p>
+
+    <div class="cta">
+        <a href="/predictdata">
+            Try the Predictor
+            <span class="arrow">→</span>
+        </a>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">🧠</div>
+            <div class="feature-title">ML Powered</div>
+            <div class="feature-desc">Trained on real student performance data using multiple regression models.</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Instant Results</div>
+            <div class="feature-desc">Get a predicted maths score in seconds with no delay.</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">6 Features</div>
+            <div class="feature-desc">Uses gender, ethnicity, education, lunch, test prep and prior scores.</div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div>
+            <div class="stat-value">9+</div>
+            <div class="stat-label">Models Trained</div>
+        </div>
+        <div>
+            <div class="stat-value">1000</div>
+            <div class="stat-label">Data Points</div>
+        </div>
+        <div>
+            <div class="stat-value">6</div>
+            <div class="stat-label">Input Features</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --border: #1e1e2e;
+            --accent: #7c6af7;
+            --accent-light: #a89cf5;
+            --accent-glow: rgba(124, 106, 247, 0.15);
+            --text: #e8e6f0;
+            --text-muted: #6b6880;
+            --success: #4ade80;
+            --card: #13131c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 60px 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            margin-bottom: 56px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(124,106,247,0.3);
+            color: var(--accent-light);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 24px;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #fff 30%, var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 480px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            animation: fadeUp 0.6s ease 0.1s both;
+        }
+
+        .section-label {
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .field:last-child { margin-bottom: 0; }
+
+        label {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        select, input[type="number"] {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6880' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        select:focus, input[type="number"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        select option { background: #1a1a28; }
+
+        input[type="number"]::placeholder { color: var(--text-muted); }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 28px 0;
+        }
+
+        .score-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .score-field {
+            position: relative;
+        }
+
+        .score-field input { padding-right: 50px; }
+
+        .score-unit {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(124,106,247,0.4);
+        }
+
+        button[type="submit"]:active { transform: translateY(0); }
+
+        .result {
+            margin-top: 24px;
+            background: rgba(74, 222, 128, 0.05);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 12px;
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .result-label {
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--success);
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .result-unit {
+            font-size: 16px;
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .result-icon {
+            width: 56px; height: 56px;
+            background: rgba(74,222,128,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @media (max-width: 560px) {
+            .grid-2, .score-row { grid-template-columns: 1fr; }
+            .card { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="badge">ML Prediction Model</div>
+        <h1><span>Student Exam<br>Performance</span></h1>
+        <p class="subtitle">Enter student details below to predict their mathematics score using our trained regression model.</p>
+    </div>
+
+    <div class="card">
+        <form action="{{ url_for('predict_datapoint') }}" method="post">
+
+            <div class="section-label">Demographics</div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Gender</label>
+                    <select name="gender" required>
+                        <option selected disabled value="">Select your Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Race / Ethnicity</label>
+                    <select name="ethnicity" required>
+                        <option selected disabled value="">Select Ethnicity</option>
+                        <option value="group A">Group A</option>
+                        <option value="group B">Group B</option>
+                        <option value="group C">Group C</option>
+                        <option value="group D">Group D</option>
+                        <option value="group E">Group E</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Parental Level of Education</label>
+                <select name="parental_level_of_education" required>
+                    <option selected disabled value="">Select Parent Education</option>
+                    <option value="associate's degree">Associate's Degree</option>
+                    <option value="bachelor's degree">Bachelor's Degree</option>
+                    <option value="high school">High School</option>
+                    <option value="master's degree">Master's Degree</option>
+                    <option value="some college">Some College</option>
+                    <option value="some high school">Some High School</option>
+                </select>
+            </div>
+
+            <div class="divider"></div>
+            <div class="section-label">Academic Context</div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label>Lunch Type</label>
+                    <select name="lunch" required>
+                        <option selected disabled value="">Select Lunch Type</option>
+                        <option value="free/reduced">Free / Reduced</option>
+                        <option value="standard">Standard</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Test Preparation</label>
+                    <select name="test_preparation_course" required>
+                        <option selected disabled value="">Select Test Course</option>
+                        <option value="none">None</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="section-label">Score Inputs</div>
+
+            <div class="score-row">
+                <div class="field score-field">
+                    <label>Writing Score</label>
+                    <input type="number" name="writing_score" placeholder="0" min="0" max="100" required>
+                    <span class="score-unit">/ 100</span>
+                </div>
+                <div class="field score-field">
+                    <label>Reading Score</label>
+                    <input type="number" name="reading_score" placeholder="0" min="0" max="100" required>
+                    <span class="score-unit">/ 100</span>
+                </div>
+            </div>
+
+            <button type="submit">→ Predict Maths Score</button>
+        </form>
+
+        {% if results is defined %}
+        <div class="result">
+            <div>
+                <div class="result-label">Predicted Score</div>
+                <div class="result-value">{{ results }} <span class="result-unit">/ 100</span></div>
+            </div>
+            <div class="result-icon">🎯</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
