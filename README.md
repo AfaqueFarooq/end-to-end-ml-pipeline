@@ -2,7 +2,9 @@
 
 A full end-to-end machine learning web application that predicts a student's **mathematics score** based on demographic and academic factors.
 
-**Live Demo → [ml-student-predictor.azurewebsites.net]([https://student-performance-ml.azurewebsites.net](https://ml-student-predictor-deaqemb3efa2auge.francecentral-01.azurewebsites.net/))**
+**Live Demo → [student-performance-ml.azurewebsites.net](https://ml-student-predictor-deaqemb3efa2auge.francecentral-01.azurewebsites.net/)**
+
+> ⚠️ Hosted on Azure Free tier — the app may take 20-30 seconds to load on first visit as the server wakes up from sleep. Please be patient!
 
 ---
 
